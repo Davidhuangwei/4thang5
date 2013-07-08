@@ -47,9 +47,7 @@ temp = zeros(size(bfImage));
 
 for j = 1: 128    
         temp(:,j)  = circshift(bfImage(:,j),[-delay_per_element * (129-1) 0]);
-        %temp(:,j)  = circshift(bfImage(:,j),[-delay_per_element * (129-j) 0]);
-        %shifted_line = bfImage(1 + delay_per_element * (128-j) : end,j);
-        %temp(:,j) = padarray(shifted_line, size(temp,1)-length(shifted_line) , -3000 ,'post');        
+          
 end
 figure;
 subplot(121);
