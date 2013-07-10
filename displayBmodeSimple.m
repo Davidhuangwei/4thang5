@@ -4,6 +4,7 @@ function displayBmodeSimple(frame,dynamicRange,no_samples)
     array_coordinate = (-(no_elements-1)/2:(no_elements-1)/2)' * pitch; 
     max_distance = no_samples * 1500 /40e3;
     distance = 0 : max_distance;
+    %distance = distance;
 
     bf_image1 = abs(hilbert(frame));                  % Envelope detection
     bf_image1 = bf_image1 / max(max(bf_image1));

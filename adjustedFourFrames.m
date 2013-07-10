@@ -1,4 +1,6 @@
 %%
+hilBertFlag = 0;
+select = 1;
 close all;
 c = 1500 ; %m/s
 fs = 40e6;
@@ -18,25 +20,44 @@ newFrame4 = frame4(numberOfDelayedSample(4):end,:);
 
 minWidth = min([size(newFrame1,1) size(newFrame2,1) size(newFrame3,1) size(newFrame4,1)]);
 
-
-newFrame = abs(hilbert(newFrame1(1:minWidth,:))) + abs(hilbert(newFrame2(1:minWidth,:))) + abs(hilbert(newFrame3(1:minWidth,:))) + abs(hilbert(newFrame4(1:minWidth,:)));
+if (hilBertFlag > 0)
+    newFrame = abs(hilbert(newFrame1(1:minWidth,:))) + abs(hilbert(newFrame2(1:minWidth,:))) + abs(hilbert(newFrame3(1:minWidth,:))) + abs(hilbert(newFrame4(1:minWidth,:)));
+else 
+    newFrame = newFrame1(1:minWidth,:) + newFrame2(1:minWidth,:) + newFrame3(1:minWidth,:) + newFrame4(1:minWidth,:);
+end
 bf_range = [1,60];
 
 figure;
 title('Pre beamformed');
-displayBmodeWithoutEnvelopeDetection(newFrame, 30, size(newFrame,1));
+if (hilBertFlag > 0)
+    displayBmodeWithoutEnvelopeDetection(newFrame, 30, size(newFrame,1));    
+else
+    displayBmodeSimple(newFrame, 30, size(newFrame,1));
+end
 
 
 
-
+line_start = 32;
+line_end = 110;
 %%
-bfImage1  = delay_and_sum_Beamforming(newFrame1(1:minWidth,:), fs, 128, bf_range);
-bfImage2  = delay_and_sum_Beamforming(newFrame2(1:minWidth,:), fs, 128, bf_range);
-bfImage3  = delay_and_sum_Beamforming(newFrame3(1:minWidth,:), fs, 128, bf_range);
-bfImage4  = delay_and_sum_Beamforming(newFrame4(1:minWidth,:), fs, 128, bf_range);
+if (select == 0)
+    bfImage1  = delay_and_sum_Beamforming(newFrame1(1:minWidth,:), fs, 128, bf_range);
+    bfImage2  = delay_and_sum_Beamforming(newFrame2(1:minWidth,:), fs, 128, bf_range);
+    bfImage3  = delay_and_sum_Beamforming(newFrame3(1:minWidth,:), fs, 128, bf_range);
+    bfImage4  = delay_and_sum_Beamforming(newFrame4(1:minWidth,:), fs, 128, bf_range);
+else
+    bfImage1  = delay_and_sum_Beamforming_select_lines(newFrame1(1:minWidth,:), fs, 128, bf_range, line_start, line_end);
+    bfImage2  = delay_and_sum_Beamforming_select_lines(newFrame2(1:minWidth,:), fs, 128, bf_range, line_start, line_end);
+    bfImage3  = delay_and_sum_Beamforming_select_lines(newFrame3(1:minWidth,:), fs, 128, bf_range, line_start, line_end);
+    bfImage4  = delay_and_sum_Beamforming_select_lines(newFrame4(1:minWidth,:), fs, 128, bf_range, line_start, line_end);
+end
 %bfImage5  = delay_and_sum_Beamforming(newFrame5(1:minWidth,:), fs, 128, bf_range);
 figure;
-displayBmodeWithoutEnvelopeDetection(abs(hilbert(bfImage1)) + abs(hilbert(bfImage2)) + abs(hilbert(bfImage3)) + abs(hilbert(bfImage4)), 30, size(bfImage1,1));
+if (hilBertFlag > 0)
+    displayBmodeWithoutEnvelopeDetection(abs(hilbert(bfImage1)) + abs(hilbert(bfImage2)) + abs(hilbert(bfImage3)) + abs(hilbert(bfImage4)), 30, size(bfImage1,1));
+else
+    displayBmodeSimple(bfImage1 + bfImage2 + bfImage3 + bfImage4, 30, size(bfImage1,1));
+end
 title('Beamformed');
 return;
 
